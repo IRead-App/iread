@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "441446994271",
+    "project_id": "i-read-da722",
+    "storage_bucket": "i-read-da722.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:441446994271:android:917266776430e97379a6ea",
+        "android_client_info": {
+          "package_name": "com.example.iread"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "441446994271-j7r6j9m1imtpn34s1eom2gkl5cmtcas5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvVKZsleEQBRUIDq939JIQeBcEyh6DMgc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "441446994271-j7r6j9m1imtpn34s1eom2gkl5cmtcas5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
