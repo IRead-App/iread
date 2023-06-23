@@ -6,6 +6,7 @@ import 'package:iread/model/post_model.dart';
 import 'package:iread/model/user_model.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:intl/intl.dart';
+import '../../controller/auth_controller.dart';
 import '../screens/community/community.dart';
 import 'custom_text_form_field.dart';
 
@@ -20,6 +21,7 @@ class PostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     RxBool liked = false.obs;
+    RxBool saved = false.obs;
     return IntrinsicHeight(
       child: Card(
         shape: RoundedRectangleBorder(
@@ -114,9 +116,45 @@ class PostCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.save),
+                StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(AuthController.instance.firebaseUser.value!.uid)
+                      .collection('savedPosts')
+                      .doc(posts[index].id)
+                      .snapshots(),
+                  builder: (BuildContext context, saveSnapshot) {
+                    if (saveSnapshot.hasData && saveSnapshot.data != null) {
+                      final isSaved = saveSnapshot.data!.exists;
+
+                      return IconButton(
+                        onPressed: () async {
+                          final postId = posts[index].id;
+                          final reactsCollection = FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(AuthController.instance.firebaseUser.value!.uid)
+                              .collection('savedPosts')
+                              .doc(postId);
+
+                          if (isSaved) {
+                            reactsCollection.delete();
+                            saved.value = false;
+                          } else {
+                            reactsCollection.set(post.toJson());
+                            saved.value = true;
+                          }
+                        },
+                        icon: isSaved
+                            ? Icon(Icons.unarchive, color: Colors.red)
+                            : Icon(Icons.archive, color: Colors.green),
+                      );
+                    }
+
+                    return IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.archive, color: Colors.green),
+                    );
+                  },
                 ),
                 SizedBox(width: 1),
                 Text(NumberFormat('#,###').format(post.comments?.length)),
@@ -181,24 +219,56 @@ class PostCard extends StatelessWidget {
                 ),
                 SizedBox(width: 1),
                 Text(NumberFormat('#,###').format(post.reacts)),
-                Obx(
-                      () => IconButton(
-                    onPressed: () async {
-                      final reactsValue = liked.value ? -1 : 1;
-                      await FirebaseFirestore.instance
-                          .collection('communityGroups')
-                          .doc(sectionId)
-                          .collection('posts')
-                          .doc(posts[index].id)
-                          .update({
-                        'reacts': FieldValue.increment(reactsValue),
-                      });
-                    },
-                    icon: Icon(
-                      liked.value ? Icons.favorite : Icons.favorite_border,
-                      color: liked.value ? Colors.red : null,
-                    ),
-                  ),
+                StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('communityGroups')
+                      .doc(sectionId)
+                      .collection('posts')
+                      .doc(posts[index].id)
+                      .collection('reacts')
+                      .doc(AuthController.instance.firebaseUser.value!.uid)
+                      .snapshots(),
+                  builder: (BuildContext context, saveSnapshot) {
+                    if (saveSnapshot.hasData && saveSnapshot.data != null) {
+                      final docData = saveSnapshot.data?.data();
+                      final isLiked = docData != null;
+
+                      return IconButton(
+                        onPressed: () async {
+                          final reactsCollection = FirebaseFirestore.instance
+                              .collection('communityGroups')
+                              .doc(sectionId)
+                              .collection('posts')
+                              .doc(posts[index].id)
+                              .collection('reacts')
+                              .doc(AuthController.instance.firebaseUser.value!.uid);
+                          final reactsNum = FirebaseFirestore.instance
+                              .collection('communityGroups')
+                              .doc(sectionId)
+                              .collection('posts')
+                              .doc(posts[index].id);
+
+                          if (isLiked) {
+                            reactsNum.update({'reacts': FieldValue.increment(-1)});
+                            reactsCollection.delete();
+                            liked.value = false;
+                          } else {
+                            reactsNum.update({'reacts': FieldValue.increment(1)});
+                            reactsCollection.set({
+                              "uid":
+                              AuthController.instance.firebaseUser.value?.uid ?? ''
+                            });
+                            liked.value = true;
+                          }
+                        },
+                        icon: isLiked
+                            ? Icon(Icons.favorite, color: Colors.red)
+                            : Icon(Icons.favorite_border),
+                      );
+                    }
+
+                    return IconButton(onPressed: () {}, icon: Icon(Icons.favorite_border));
+                  },
                 )
                 ,
               ],

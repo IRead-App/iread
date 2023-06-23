@@ -159,7 +159,7 @@ class CommunityPosts extends StatelessWidget {
                                             reactsCollection.delete();
                                             saved.value = false;
                                           } else {
-                                            reactsCollection.set({"postId": postId});
+                                            reactsCollection.set(post.toJson());
                                             saved.value = true;
                                           }
                                         },
@@ -323,7 +323,7 @@ class CommunityPosts extends StatelessWidget {
                   IconButton(
                     icon: Icon(Icons.send),
                     onPressed: () {
-                      controller.addPost(sectionId, sectionName, controller.postController.text, controller.image.value);
+                      controller.addPost(sectionId, sectionName, controller.postController.text, controller.image.value, sectionId);
                     },
                   ),
                 ],
@@ -690,7 +690,7 @@ class CommunityPostsController extends GetxController {
   RxString image = ''.obs;
 
   void addPost(
-      String sectionId, String sectionName, String postText, String imageUrl) async {
+      String sectionId, String sectionName, String postText, String imageUrl, String section) async {
     final reactsCollection = FirebaseFirestore.instance
         .collection('communityGroups')
         .doc(sectionId)

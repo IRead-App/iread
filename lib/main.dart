@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import '../view/screens/auth/log_in.dart';
 import 'package:get/get.dart';
 import 'controller/localization_controller.dart';
+import 'controller/theme_controller.dart';
 import 'core/localization.dart';
 import 'core/binding.dart';
 
@@ -20,17 +21,19 @@ class MyApp extends StatelessWidget {
   final LocalizationController localizationController =
   Get.put(LocalizationController());
 
+   final themeController = Get.put(ThemeController());
+
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+    return Obx(() => GetMaterialApp(
       debugShowCheckedModeBanner: false,
+      themeMode: themeController.themeMode,
       theme: ThemeData(
-        // bottomSheetTheme: BottomSheetThemeData(elevation: 0),
-        // appBarTheme: AppBarTheme(
-        //     iconTheme: IconThemeData(color: Colors.black),
-        //     titleTextStyle: TextStyle(color: Colors.black),
-        //     backgroundColor: Colors.transparent,
-        //     elevation: 0),
+        brightness: Brightness.light,
+        primarySwatch: Colors.teal,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
         primarySwatch: Colors.teal,
       ),
       translations: TranslationService(),
@@ -38,6 +41,6 @@ class MyApp extends StatelessWidget {
       fallbackLocale: Locale('en'),
       initialBinding: Binding(),
       home: LogIn(),
-    );
+    ));
   }
 }

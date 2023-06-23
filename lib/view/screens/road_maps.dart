@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iread/view/screens/roadmap_details.dart';
 
 import '../../core/constance.dart';
 import '../../model/book_model.dart';
@@ -72,7 +73,9 @@ class RoadMaps extends StatelessWidget {
                                 child: Image.network(front),
                               ),
                               trailing: TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+
+                                },
                                 child: Text('Details...'),
                               ),
                             ),
@@ -126,7 +129,9 @@ class RoadMaps extends StatelessWidget {
                                 child: Image.network(flutter),
                               ),
                               trailing: TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Get.to(()=> RoadmapDetails());
+                                },
                                 child: Text('Details...'),
                               ),
                             ),

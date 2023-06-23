@@ -33,33 +33,44 @@ class AuthController extends GetxController {
   RxBool isLoading = false.obs;
 
   Future<UserCredential?> signInWithGoogle() async {
-    // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    try {
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
 
-    // Once signed in, return the UserCredential
-    return await FirebaseAuth.instance.signInWithCredential(credential).then((value) async {
-      await firestore.collection('users').doc(value.user!.uid).set({
-        "name": value.user?.displayName ?? 'user',
-        "email": value.user?.email,
-        "phone": value.user?.phoneNumber ?? '',
-        "gender": 'male',
-        "country": 'None Provide Yet',
-      });
-      Get.back(); // Close the loading dialog
-      Get.to(() => LogIn());
-      successSnackBar('Success', 'Successfully Signing Up, Now you can Log In');
+      // Once signed in, return the UserCredential
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final user = userCredential.user;
+
+      if (user != null) {
+        await firestore.collection('users').doc(user.uid).set({
+          "name": user.displayName ?? 'user',
+          "email": user.email,
+          "phone": user.phoneNumber ?? '',
+          "gender": 'male',
+          "country": 'None Provide Yet',
+        });
+        Get.back(); // Close the loading dialog
+        Get.to(() => LogIn());
+        successSnackBar('Success', 'Successfully Signing Up, Now you can Log In');
+      }
+
       return null;
-    });
+    } catch (e) {
+      // Handle sign-in errors here
+      print('Error signing in with Google: $e');
+      return null;
+    }
   }
+
 
 
   void emailSignUp(String name, String email, String password, String phone,
@@ -136,6 +147,7 @@ class AuthController extends GetxController {
 
   logOut() async {
     await auth.signOut();
+    Get.offAll(()=> ControlView());
   }
 
 

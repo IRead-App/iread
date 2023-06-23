@@ -1,4 +1,5 @@
 class PostModel {
+  String? sectionId;
   String? owner;
   String? ownerImage;
   String? text;
@@ -9,6 +10,7 @@ class PostModel {
   List<Map<String, String>>? comments;
 
   PostModel({
+    this.sectionId,
     this.owner,
     this.ownerImage,
     this.text,
@@ -22,6 +24,7 @@ class PostModel {
   factory PostModel.fromJson(Map<String, dynamic>? json) {
     if (json == null) return PostModel();
     return PostModel(
+      sectionId: json['sectionId'],
       owner: json['owner'],
       ownerImage: json['ownerImage'],
       text: json['text'],
@@ -37,6 +40,7 @@ class PostModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'sectionId': sectionId,
       'owner': owner,
       'ownerImage': ownerImage,
       'text': text,
